@@ -10,36 +10,21 @@ let server = http.Server(app);
 let io = socketIO(server);
 
 // For deployment
-app.use(express.static(path.join(__dirname, '../../public')));
-
+app.use(express.static(path.join(__dirname, '../../client/build')));
 app.get('/*', (req, res) => {
-  res.sendFile(path.join(__dirname, '../../public', 'index.html'));
+  res.sendFile(path.join(__dirname, '../../client/build/', 'index.html'));
 });
 
 
 // Set port for Heroku
 let port = process.env.PORT;
-if (port == null || port == "") {
-  port = 4000;
-}
-
+if (port == null || port == "") {port = 5000;}
 app.set('port', port);
-
-// app.use(express.static(path.join(__dirname, '../..')));
-
-// // Routing
-// app.get('/', function(request, response) {
-//     response.sendFile(path.join(__dirname, '../client/html/index.html'));
-//   });
 
 // Starts the server.
 server.listen(port, function() {
     console.log(`Starting server on port ${port}`);
 });
-
-// http.listen(4000, () => {
-//     console.log('Listening on Port:4000');
-// });
 
 const initialEditorValue = {
     document: {
@@ -61,21 +46,27 @@ const initialEditorValue = {
 const groupData = {};
 
 io.on('connection', (socket) => {
+    console.log(`Connected ${socket.id}`);
+
     socket.on('group-id', (groupId) => {
-        console.log(` `);
-        console.log(`New user in group: ${groupId}`);
+        console.log(`---`);
+        console.log(`New user in group [${groupId}]: ${socket.id}`);
         if (!(groupId in groupData)) {
             console.log('First user in group');
             groupData[groupId] = initialEditorValue;
         }
-        console.log(`Sending initial value ${JSON.stringify(groupData[groupId].document.nodes[0].nodes[0].text)}`);
-        console.log(` `);
-        io.emit(`initial-value-${groupId}`, groupData[groupId]);
+        console.log(`Sending initial value ${JSON.stringify(groupData[groupId].document)}`);
+        console.log(`---`);
+        io.to(socket.id).emit(`initial-value-${groupId}`, groupData[groupId]);
     });
 
     socket.on('new-operations', (data) => {
         groupData[data.groupId] = data.value;
-        console.log(`Change in group [${data.groupId}]: ${groupData[data.groupId].document.nodes[0].nodes[0].text}`);
+        console.log(`Change in group [${data.groupId}]: ${JSON.stringify(groupData[data.groupId].document)}`);
         io.emit(`new-remote-operations-${data.groupId}`, data);
+    });
+
+    socket.on('disconnect', (reason) => {
+      console.log(`Disconnected ${socket.id}`);
     });
 });
