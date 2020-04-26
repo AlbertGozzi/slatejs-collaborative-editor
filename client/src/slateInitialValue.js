@@ -15,4 +15,4 @@ export const initialValue = Value.fromJSON({
         },
       ],
     },
-})
+});

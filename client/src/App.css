@@ -1,5 +1,6 @@
 body {
-  background-color: #F8F8FA;
+  /* background-color: #F8F8FA; */
+  background-color: rgb(39, 41, 45);
   width: 100vw;
   margin: 0;
   overflow: hidden;
@@ -7,6 +8,7 @@ body {
 
 .title {
   text-align: center;
+  color: rgba(255, 255, 255, 0.9);
 }
 
 .editor {
@@ -15,8 +17,9 @@ body {
 
   margin: 0 auto;
 
-  background: #FFFFFF;
+  background: rgb(255, 255, 255);
   border: 1px solid #EDEDED;
+  border-radius: 4px;
   box-shadow: 0 8px 14px 0 rgba(60,60,60,0.09);
 
   overflow-y: auto;

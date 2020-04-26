@@ -1,15 +1,15 @@
-import React, { useState, useRef, useEffect } from 'react'
+import React, { useState, useRef, useEffect } from 'react';
 import { Editor } from 'slate-react';
 import { Value } from 'slate';
 import { initialValue } from '../slateInitialValue';
 import io from 'socket.io-client';
 
-const socket = io('http://localhost:5000')
+const socket = io('http://localhost:5000');
 
 
 export const SyncingEditor = (props) => {
   const [value, setValue] = useState(initialValue);
-  const id = useRef(`${Date.now()}`)
+  const id = useRef(`${Date.now()}`);
   const editor = useRef(null);
   const remote = useRef(false);
   // const socket = io('http://localhost:5000', {transports: ['websocket'], upgrade: false})
@@ -25,10 +25,10 @@ export const SyncingEditor = (props) => {
 
     socket.on(`new-remote-operations-${props.groupId}`, ({editorId, ops, value}) => {
       if (id.current !== editorId) {
-        console.log('Operation applied in app')
+        console.log('Operation applied in app');
         remote.current = true;
         try {
-          ops.forEach(op => editor.current.applyOperation(op))
+          ops.forEach(op => editor.current.applyOperation(op));
         }
         catch(err) {
           console.log('Hardcoding'); // TODO; review

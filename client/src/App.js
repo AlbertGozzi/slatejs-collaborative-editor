@@ -15,7 +15,7 @@ const App = () => {
           }}
         />
         <Route path="/group/:id" render={props => <GroupEditor {...props} />} />
-      </BrowserRouter>    
+      </BrowserRouter>
 
     </div>   
   );
