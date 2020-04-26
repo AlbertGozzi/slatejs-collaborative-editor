@@ -1,18 +1,15 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { Editor } from 'slate-react';
-import { Value } from 'slate';
-import { initialValue } from '../slateInitialValue';
+import React, { useState, useRef, useEffect, useMemo } from 'react';
+import { createEditor } from 'slate';
+import { Slate, Editable, withReact } from 'slate-react'
 import io from 'socket.io-client';
 
 const socket = io('http://localhost:5000');
 
 
 export const SyncingEditor = (props) => {
-  const [value, setValue] = useState(initialValue);
-  const id = useRef(`${Date.now()}`);
-  const editor = useRef(null);
-  const remote = useRef(false);
-  // const socket = io('http://localhost:5000', {transports: ['websocket'], upgrade: false})
+  // const [value, setValue] = useState(initialValue);
+  const [value, setValue] = useState([]);
+  const editor = useMemo(() => withReact(createEditor()), [])
 
   useEffect(() => {
     console.log("Mounting...");
@@ -20,21 +17,14 @@ export const SyncingEditor = (props) => {
   
     socket.once(`initial-value-${props.groupId}`, (value) => {
       console.log('Initial value received');
-      setValue(Value.fromJSON(value));
+      // setValue(Value.fromJSON(value));
+      setValue(value);
     });
 
     socket.on(`new-remote-operations-${props.groupId}`, ({editorId, ops, value}) => {
-      if (id.current !== editorId) {
-        console.log('Operation applied in app');
-        remote.current = true;
-        try {
-          ops.forEach(op => editor.current.applyOperation(op));
-        }
-        catch(err) {
-          console.log('Hardcoding'); // TODO; review
-          setValue(Value.fromJSON(value));
-        }
-        remote.current = false;
+      if (socket.id !== editorId) {
+        console.log('Remote operation');
+        ops.forEach(op => editor.apply(op));
       }
     });
 
@@ -46,40 +36,58 @@ export const SyncingEditor = (props) => {
  
   return ( 
     <div>
-      <Editor 
-        ref={editor}
-        className="editor"
-        value={value} 
-  
-        onChange={opts => {
-          setValue(opts.value);
-  
-          // Create object to emit
-          const ops = opts.operations
-            .filter(o => {
-              if (o) {
-                return (
-                  o.type !== "set_selection" &&
-                  o.type !== "set_value" &&
-                  (!o.data || !o.data.has("source"))
-                );
-              }
-              return false;
-            })
-            .toJS()
-            .map((o) => ({ ...o, data: { source: "one" } }));  
-  
-          // Emit object
-          if (ops.length && !remote.current) {
-            socket.emit('new-operations', {
-              editorId: id.current, 
-              ops: ops,
-              value: opts.value.toJSON(),
-              groupId: props.groupId
-            })
-          }      
-        }}
-      />
+        <Slate 
+          editor={editor} 
+          value={value}
+          onChange={value => {
+            // console.log(value);
+            setValue(value);
+            // console.log(value);
+
+            let isRemoteOperation = [...editor.operations].map(op => op.source).join('').length !== 0;
+
+            // if (isRemoteOperation) {
+            //   console.log(`REMOTE - New operation`);
+            // } else {
+            //   console.log(`LOCAL - New operation`);
+            // }
+
+            if (!isRemoteOperation) {
+              // console.log(`Before transformation `);
+              // console.log(editor.operations);
+
+              // Create object to emit
+              const ops = editor.operations
+                .filter(o => {
+                  if (o) {
+                    return (
+                      o.type !== "set_selection" &&
+                      // o.type !== "set_value" &&
+                      !o.source
+                    );
+                  }
+                  return false;
+                })
+                .map((o) => ({ ...o, source: socket.id }));  
+    
+              // console.log(`After transformation `);
+              // console.log(ops);
+
+              // Emit object
+              if (ops.length && !isRemoteOperation) {
+                console.log('Emitting')
+                socket.emit('new-operations', {
+                  editorId: socket.id, 
+                  ops: ops,
+                  value: value,
+                  groupId: props.groupId
+                })
+              }      
+            }
+          }} 
+        >
+          <Editable className="editor" />
+        </Slate>
     </div>
   );
 }

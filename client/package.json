@@ -12,8 +12,8 @@
     "react-dom": "^16.13.1",
     "react-router-dom": "^5.1.2",
     "react-scripts": "3.4.1",
-    "slate": "^0.47.0",
-    "slate-react": "^0.22.10",
+    "slate": "^0.57.2",
+    "slate-react": "^0.57.2",
     "socket.io-client": "^2.3.0"
   },
   "scripts": {

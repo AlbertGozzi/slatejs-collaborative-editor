@@ -26,22 +26,12 @@ server.listen(port, function() {
     console.log(`Starting server on port ${port}`);
 });
 
-const initialEditorValue = {
-    document: {
-      nodes: [
-        {
-          object: 'block',
-          type: 'paragraph',
-          nodes: [
-            {
-              object: 'text',
-              text: 'A line of text in a paragraph.',
-            },
-          ],
-        },
-      ],
-    },
-};
+const initialEditorValue = [
+  {
+    type: 'paragraph',
+    children: [{ text: 'A line of text in a paragraph.' }],
+  },
+];
 
 const groupData = {};
 
@@ -55,14 +45,14 @@ io.on('connection', (socket) => {
             console.log('First user in group');
             groupData[groupId] = initialEditorValue;
         }
-        console.log(`Sending initial value ${JSON.stringify(groupData[groupId].document)}`);
+        console.log(`Sending initial value ${JSON.stringify(groupData[groupId])}`);
         console.log(`---`);
         io.to(socket.id).emit(`initial-value-${groupId}`, groupData[groupId]);
     });
 
     socket.on('new-operations', (data) => {
         groupData[data.groupId] = data.value;
-        console.log(`Change in group [${data.groupId}]: ${JSON.stringify(groupData[data.groupId].document)}`);
+        console.log(`Change in group [${data.groupId}]: ${JSON.stringify(groupData[data.groupId])}`);
         io.emit(`new-remote-operations-${data.groupId}`, data);
     });
 

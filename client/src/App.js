@@ -11,7 +11,7 @@ const App = () => {
           path="/" 
           exact 
           render={() => {
-            return <Redirect to={`/group/${Date.now()}`}/>;
+            return <Redirect to={`/group/Main`}/>;
           }}
         />
         <Route path="/group/:id" render={props => <GroupEditor {...props} />} />
