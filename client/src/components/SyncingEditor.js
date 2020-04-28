@@ -8,7 +8,7 @@ import isHotkey from 'is-hotkey';
 import io from 'socket.io-client';
 import { css } from 'emotion'
 
-const socket = io('http://localhost:5000');
+const socket = io('');
 const LIST_TYPES = ['numbered-list', 'bulleted-list']
 const HOTKEYS = {
   'mod+b': 'bold',
