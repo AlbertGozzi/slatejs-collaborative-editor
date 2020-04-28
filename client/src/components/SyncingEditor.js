@@ -85,11 +85,9 @@ export const deserialize = el => {
 
 export const SyncingEditor = (props) => {
   const [value, setValue] = useState([]);
-  const [theoryValue, setTheoryValue] = useState([]);
   const renderElement = useCallback(props => <Element {...props} />, []);
   const renderLeaf = useCallback(props => <Leaf {...props} />, []);
   const editor = useMemo(() => withHistory(withHtml(withReact(createEditor()))), [])
-  const theoryEditor = useMemo(() => withHistory(withHtml(withReact(createEditor()))), [])
 
   useEffect(() => {
     console.log("Mounting...");
@@ -191,16 +189,14 @@ export const SyncingEditor = (props) => {
           </Slate>
         </section>
         <div className="theoryEditor">
-        <Slate
-          editor={theoryEditor} 
-          value={theoryValue}
-        >
-          <Editable
-            // readOnly
-            renderElement={renderElement}
-            renderLeaf={renderLeaf}
-          />
-        </Slate>
+          {value.map(text => {
+            console.log(text.children);
+            return <p>{text.children.map(element => {
+              if (element.theory) {
+                return <span>{element.text}</span>;
+              }
+            })}</p>
+          })}
         </div>
     </div>
   );
@@ -332,7 +328,6 @@ const ImageElement = ({ attributes, children, element }) => {
       {children}
       <img
         src={element.url}
-        className="image"
         className={css`
           display: block;
           max-width: 100%;

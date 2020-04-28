@@ -44,12 +44,6 @@ body {
   font-weight: bold;
 }
 
-img {
-  display: block;
-  max-width: 100%;
-  max-height: 20em;
-}
-
 .editor {
   width: 60%;
   height: 80vh;
