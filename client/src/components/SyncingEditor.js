@@ -15,7 +15,7 @@ const HOTKEYS = {
   'mod+i': 'italic',
   'mod+u': 'underline',
   'mod+`': 'code',
-  'mod+s': 'theory'
+  'mod+p': 'theory'
 };
 const ELEMENT_TAGS = {
   A: el => ({ type: 'link', url: el.getAttribute('href') }),
@@ -189,7 +189,7 @@ export const SyncingEditor = (props) => {
           </Slate>
         </section>
         <section>
-          <h4 class="theoryTitle"> Theory Summary </h4>
+          <h4 className="theoryTitle"> Theory Summary </h4>
           <div className="theoryEditor">
             {value.map((text,i) => {
               return <p key={i}>{text.children.map((element, j) => {
@@ -392,7 +392,8 @@ const MarkButton = ({ format, icon }) => {
         toggleMark(editor, format)
       }}
     >
-      {icon}
+      <i class="fas fa-bold"></i>
+      {/* {icon} */}
     </button>
   )
 }
