@@ -114,7 +114,7 @@ export const SyncingEditor = (props) => {
             setValue(value);
           }
           catch (err) {
-            console.log(`Error: ${err}`)
+            console.log(`Error. Too many operations at the same time! ${err}`)
           }
         }
       }
@@ -134,7 +134,12 @@ export const SyncingEditor = (props) => {
             value={value}
             onChange={value => {
               console.log('Applied operation - Locally')
-              setValue(value);
+              try { 
+                setValue(value);
+              }
+              catch (err) {
+                console.log(`Error. Too many operations at the same time! ${err}`)
+              }
               let isRemoteOperation = [...editor.operations].map(op => op.source).join('').length !== 0;
               if (!isRemoteOperation) {
                 // console.log(`Before transformation `);
