@@ -1,10 +1,12 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { createEditor, Editor, Transforms} from 'slate';
 import { Slate, Editable, withReact, useSlate } from 'slate-react';
-// import { useSelected, useFocused } from 'slate-react';
+import { withHistory } from 'slate-history';
 import { jsx } from 'slate-hyperscript';
+import { useSelected, useFocused } from 'slate-react';
 import isHotkey from 'is-hotkey';
 import io from 'socket.io-client';
+import { css } from 'emotion'
 
 const socket = io('http://localhost:5000');
 const LIST_TYPES = ['numbered-list', 'bulleted-list']
@@ -13,6 +15,7 @@ const HOTKEYS = {
   'mod+i': 'italic',
   'mod+u': 'underline',
   'mod+`': 'code',
+  'mod+s': 'theory'
 };
 const ELEMENT_TAGS = {
   A: el => ({ type: 'link', url: el.getAttribute('href') }),
@@ -81,11 +84,12 @@ export const deserialize = el => {
 }
 
 export const SyncingEditor = (props) => {
-  // const [value, setValue] = useState(initialValue);
   const [value, setValue] = useState([]);
+  const [theoryValue, setTheoryValue] = useState([]);
   const renderElement = useCallback(props => <Element {...props} />, []);
   const renderLeaf = useCallback(props => <Leaf {...props} />, []);
-  const editor = useMemo(() => withHtml(withReact(createEditor())), [])
+  const editor = useMemo(() => withHistory(withHtml(withReact(createEditor()))), [])
+  const theoryEditor = useMemo(() => withHistory(withHtml(withReact(createEditor()))), [])
 
   useEffect(() => {
     console.log("Mounting...");
@@ -116,80 +120,102 @@ export const SyncingEditor = (props) => {
   }, []);
 
   return ( 
-    <div>
-        <Slate 
-          editor={editor} 
-          value={value}
-          onChange={value => {
-            setValue(value);
-            let isRemoteOperation = [...editor.operations].map(op => op.source).join('').length !== 0;
-            if (!isRemoteOperation) {
-              // console.log(`Before transformation `);
-              // console.log(editor.operations);
-
-              // Create object to emit
-              const ops = editor.operations
-                .filter(o => {
-                  if (o) {
-                    return (
-                      o.type !== "set_selection" &&
-                      // o.type !== "set_value" &&
-                      !o.source
-                    );
-                  }
-                  return false;
-                })
-                .map((o) => ({ ...o, source: socket.id }));  
-    
-              // console.log(`After transformation `);
-              // console.log(ops);
-
-              // Emit object
-              if (ops.length && !isRemoteOperation) {
-                console.log('Emitting')
-                socket.emit('new-operations', {
-                  editorId: socket.id, 
-                  ops: ops,
-                  value: value,
-                  groupId: props.groupId
-                })
-              }      
-            }
-          }} 
-        >
-          <div className="toolbar">
-            <MarkButton format="bold" icon="B"/>
-            <MarkButton format="italic" icon="I"/>
-            <MarkButton format="underline" icon="U"/>
-            <MarkButton format="code" icon="Code"/>
-            <BlockButton format="heading-one" icon="H1" />
-            <BlockButton format="heading-two" icon="H2" />
-            <BlockButton format="block-quote" icon="Quote" />
-            <BlockButton format="numbered-list" icon="OL" />
-            <BlockButton format="bulleted-list" icon="UL" />
-          </div>
-          <Editable 
-            className="editor" 
-            renderElement={renderElement}
-            renderLeaf={renderLeaf}
-            onKeyDown={event => {
-              for (const hotkey in HOTKEYS) {
-                if (isHotkey(hotkey, event)) {
-                  event.preventDefault()
-                  const mark = HOTKEYS[hotkey]
-                  toggleMark(editor, mark)
-                }
+    <div className='main'>
+        <section>
+          <Slate 
+            editor={editor} 
+            value={value}
+            onChange={value => {
+              setValue(value);
+              let isRemoteOperation = [...editor.operations].map(op => op.source).join('').length !== 0;
+              if (!isRemoteOperation) {
+                // console.log(`Before transformation `);
+                // console.log(editor.operations);
+  
+                // Create object to emit
+                const ops = editor.operations
+                  .filter(o => {
+                    if (o) {
+                      return (
+                        o.type !== "set_selection" &&
+                        // o.type !== "set_value" &&
+                        !o.source
+                      );
+                    }
+                    return false;
+                  })
+                  .map((o) => ({ ...o, source: socket.id }));  
+      
+                // console.log(`After transformation `);
+                // console.log(ops);
+  
+                // Emit object
+                if (ops.length && !isRemoteOperation) {
+                  console.log('Emitting')
+                  socket.emit('new-operations', {
+                    editorId: socket.id, 
+                    ops: ops,
+                    value: value,
+                    groupId: props.groupId
+                  })
+                }      
               }
             }} 
+          >
+            <div className="toolbar">
+              <MarkButton format="bold" icon="B"/>
+              <MarkButton format="italic" icon="I"/>
+              <MarkButton format="underline" icon="U"/>
+              <MarkButton format="code" icon="Co"/>
+              <MarkButton format="theory" icon="T"/>
+              <BlockButton format="heading-one" icon="H1" />
+              <BlockButton format="heading-two" icon="H2" />
+              <BlockButton format="block-quote" icon="Q" />
+              <BlockButton format="numbered-list" icon="OL" />
+              <BlockButton format="bulleted-list" icon="UL" />
+            </div>
+            <Editable 
+              className="editor" 
+              renderElement={renderElement}
+              renderLeaf={renderLeaf}
+              onKeyDown={event => {
+                for (const hotkey in HOTKEYS) {
+                  if (isHotkey(hotkey, event)) {
+                    event.preventDefault()
+                    const mark = HOTKEYS[hotkey]
+                    toggleMark(editor, mark)
+                  }
+                }
+              }} 
+            />
+          </Slate>
+        </section>
+        <div className="theoryEditor">
+        <Slate
+          editor={theoryEditor} 
+          value={theoryValue}
+        >
+          <Editable
+            // readOnly
+            renderElement={renderElement}
+            renderLeaf={renderLeaf}
           />
         </Slate>
+        </div>
     </div>
   );
 }
 
 const toggleBlock = (editor, format) => {
+
+  console.log(editor.children)
+  console.log(`Format: ${format}`)
+
   const isActive = isBlockActive(editor, format)
   const isList = LIST_TYPES.includes(format)
+
+  console.log(`isActive: ${isActive}`)
+  console.log(`isList: ${isList}`)
 
   Transforms.unwrapNodes(editor, {
     match: n => LIST_TYPES.includes(n.type),
@@ -299,20 +325,20 @@ const Element = props => {
 }
 
 const ImageElement = ({ attributes, children, element }) => {
-  // const selected = useSelected()
-  // const focused = useFocused()
+  const selected = useSelected()
+  const focused = useFocused()
   return (
     <div {...attributes}>
       {children}
       <img
         src={element.url}
         className="image"
-        // className={css`
-        //   display: block;
-        //   max-width: 100%;
-        //   max-height: 20em;
-        //   box-shadow: ${selected && focused ? '0 0 0 2px blue;' : 'none'};
-        // `}
+        className={css`
+          display: block;
+          max-width: 100%;
+          max-height: 20em;
+          box-shadow: ${selected && focused ? '0 0 0 2px grey;' : 'none'};
+        `}
         alt={element.url}
       />
     </div>
@@ -336,6 +362,10 @@ const Leaf = ({ attributes, children, leaf }) => {
     children = <u>{children}</u>
   }
 
+  if (leaf.theory) { 
+    children = <span className="theory">{children}</span>
+  }
+
   return <span {...attributes}>{children}</span>
 }
 
@@ -343,7 +373,7 @@ const BlockButton = ({ format, icon }) => {
   const editor = useSlate()
   return (
     <button
-      className={isBlockActive(editor, format).toString()}
+      className={`toolbarButton ${isBlockActive(editor, format).toString()}`}
       onMouseDown={event => {
         event.preventDefault()
         toggleBlock(editor, format)
@@ -358,7 +388,7 @@ const MarkButton = ({ format, icon }) => {
   const editor = useSlate()
   return (
     <button
-      className={isMarkActive(editor, format).toString()}
+      className={`toolbarButton ${isMarkActive(editor, format).toString()}`}
       onMouseDown={event => {
         event.preventDefault()
         toggleMark(editor, format)
@@ -368,3 +398,4 @@ const MarkButton = ({ format, icon }) => {
     </button>
   )
 }
+

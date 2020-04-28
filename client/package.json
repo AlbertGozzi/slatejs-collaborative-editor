@@ -6,17 +6,21 @@
     "@testing-library/jest-dom": "^4.2.4",
     "@testing-library/react": "^9.5.0",
     "@testing-library/user-event": "^7.2.1",
+    "emotion": "^10.0.27",
     "immutable": "^4.0.0-rc.12",
     "is-hotkey": "^0.1.6",
+    "is-plain-object": "^3.0.0",
     "mitt": "^1.2.0",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
     "react-router-dom": "^5.1.2",
     "react-scripts": "3.4.1",
     "slate": "^0.57.2",
+    "slate-history": "^0.57.2",
     "slate-hyperscript": "^0.57.2",
     "slate-react": "^0.57.2",
-    "socket.io-client": "^2.3.0"
+    "socket.io-client": "^2.3.0",
+    "typescript": "^3.8.3"
   },
   "scripts": {
     "start": "react-scripts start",

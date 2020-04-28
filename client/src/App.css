@@ -11,8 +11,13 @@ body {
   color: rgba(255, 255, 255, 0.9);
 }
 
+.main {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+}
+
 .toolbar {
-  width: 50%;
+  width: 60%;
   height: 1.5em;
 
   margin: 0 auto;
@@ -29,6 +34,12 @@ body {
   justify-content: space-between;
 }
 
+.toolbarButton {
+  height: 1.5em;
+  width: 2em;
+  padding: 1px 0.2em;
+}
+
 .true {
   font-weight: bold;
 }
@@ -40,7 +51,7 @@ img {
 }
 
 .editor {
-  width: 50%;
+  width: 60%;
   height: 80vh;
 
   margin: 0 auto;
@@ -57,7 +68,30 @@ img {
   color: rgb(26, 26, 26);
 }
 
-.editor p {
+.editor p, .theoryEditor p {
   margin-top: 0;
   margin-bottom: 0.2em;
+}
+
+.theoryEditor {
+  width: 60%;
+  height: 83.5vh;
+
+  margin: 0 auto;
+
+  background-color: #ffffb3;
+  border: 2px solid #ffffb3;
+  border-radius: 4px;
+  box-shadow: 0 8px 14px 0 rgba(60,60,60,0.09);
+
+  overflow-y: auto;
+
+  padding: 0.5em 1.5em;
+
+  color: rgb(26, 26, 26);
+}
+
+.theory {
+  background-color: #ffffb3;
+  border: 2px solid #ffffb3;
 }
