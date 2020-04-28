@@ -105,12 +105,17 @@ export const SyncingEditor = (props) => {
         //   console.log(op)
         // );
         try {
-          console.log('Applied operation - Remote');
+          console.log('Trying to apply operation - Remote');
           ops.forEach(op => editor.apply(op));
         } 
         catch (err) {
-          console.log('Applied operation - Remote - Hardcoded'); //TODO Review
-          setValue(value);
+          console.log('Tying to apply operation - Remote - Hardcoded'); //TODO Review
+          try { 
+            setValue(value);
+          }
+          catch (err) {
+            console.log(`Error: ${err}`)
+          }
         }
       }
     });
@@ -129,12 +134,7 @@ export const SyncingEditor = (props) => {
             value={value}
             onChange={value => {
               console.log('Applied operation - Locally')
-              try {
-                setValue(value);
-              }
-              catch (err) {
-                console.log(err)
-              }
+              setValue(value);
               let isRemoteOperation = [...editor.operations].map(op => op.source).join('').length !== 0;
               if (!isRemoteOperation) {
                 // console.log(`Before transformation `);
