@@ -100,12 +100,13 @@ export const SyncingEditor = (props) => {
 
     socket.on(`new-remote-operations-${props.groupId}`, ({editorId, ops, value}) => {
       if (socket.id !== editorId) {
-        console.log('Remote operation');
+        console.log('Receiving operation');
         try {
+          console.log('Applied operation - Remote');
           ops.forEach(op => editor.apply(op));
         } 
         catch (err) {
-          console.log(`Hardcoding`); //TODO Review
+          console.log('Applied operation - Remote - Hardcoded'); //TODO Review
           setValue(value);
         }
       }
@@ -124,6 +125,7 @@ export const SyncingEditor = (props) => {
             editor={editor} 
             value={value}
             onChange={value => {
+              console.log('Applied operation - Locally')
               setValue(value);
               let isRemoteOperation = [...editor.operations].map(op => op.source).join('').length !== 0;
               if (!isRemoteOperation) {
@@ -149,7 +151,7 @@ export const SyncingEditor = (props) => {
   
                 // Emit object
                 if (ops.length && !isRemoteOperation) {
-                  console.log('Emitting')
+                  console.log('Emitted operation')
                   socket.emit('new-operations', {
                     editorId: socket.id, 
                     ops: ops,
