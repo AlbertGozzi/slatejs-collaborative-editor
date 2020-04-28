@@ -101,6 +101,9 @@ export const SyncingEditor = (props) => {
     socket.on(`new-remote-operations-${props.groupId}`, ({editorId, ops, value}) => {
       if (socket.id !== editorId) {
         console.log('Receiving operation');
+        // ops.forEach(op => 
+        //   console.log(op)
+        // );
         try {
           console.log('Applied operation - Remote');
           ops.forEach(op => editor.apply(op));
@@ -126,7 +129,12 @@ export const SyncingEditor = (props) => {
             value={value}
             onChange={value => {
               console.log('Applied operation - Locally')
-              setValue(value);
+              try {
+                setValue(value);
+              }
+              catch (err) {
+                console.log(err)
+              }
               let isRemoteOperation = [...editor.operations].map(op => op.source).join('').length !== 0;
               if (!isRemoteOperation) {
                 // console.log(`Before transformation `);
@@ -138,7 +146,7 @@ export const SyncingEditor = (props) => {
                     if (o) {
                       return (
                         o.type !== "set_selection" &&
-                        // o.type !== "set_value" &&
+                        o.type !== "split_node" &&
                         !o.source
                       );
                     }
@@ -192,6 +200,14 @@ export const SyncingEditor = (props) => {
         </section>
         <section>
           <h4 className="theoryTitle"> Theory Summary </h4>
+          {/* <div className="theoryEditor">
+            <ul>{value.map((text,i) => {
+              if (text.children.length === 1) { return <li>{text.children[0].text}</li>}
+              return <ol key={i}>{text.children.map((element, j) => {
+                return <li key={j}>{element.text}</li>;
+              })}</ol>
+            })}</ul>
+          </div> */}
           <div className="theoryEditor">
             {value.map((text,i) => {
               return <p key={i}>{text.children.map((element, j) => {
@@ -394,7 +410,7 @@ const MarkButton = ({ format, icon }) => {
         toggleMark(editor, format)
       }}
     >
-      <i class="fas fa-bold"></i>
+      <i className="fas fa-bold"></i>
       {/* {icon} */}
     </button>
   )
