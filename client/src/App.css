@@ -69,7 +69,7 @@ body {
 
 .theoryEditor {
   width: 60%;
-  height: 83.5vh;
+  height: 80vh;
 
   margin: 0 auto;
 
@@ -88,4 +88,16 @@ body {
 .theory {
   background-color: #ffffb3;
   border: 2px solid #ffffb3;
+}
+
+.theoryTitle {
+  height: 1.5em;
+
+  margin: 0 auto;
+  margin-bottom: 0.2em;
+
+  padding: 0.2em 1.5em;
+
+  text-align: center;
+  color: rgba(255, 255, 255, 0.9);
 }
