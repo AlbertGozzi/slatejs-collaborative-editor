@@ -203,27 +203,6 @@ export const SyncingEditor = (props) => {
             />
           </Slate>
         </section>
-        <section>
-          <h4 className="theoryTitle"> Theory Summary </h4>
-          {/* <div className="theoryEditor">
-            <ul>{value.map((text,i) => {
-              if (text.children.length === 1) { return <li>{text.children[0].text}</li>}
-              return <ol key={i}>{text.children.map((element, j) => {
-                return <li key={j}>{element.text}</li>;
-              })}</ol>
-            })}</ul>
-          </div> */}
-          <div className="theoryEditor">
-            {value.map((text,i) => {
-              return <p key={i}>{text.children.map((element, j) => {
-                if (element.theory) {
-                  return <span key={j}>{element.text}</span>;
-                }
-                return '';
-              })}</p>
-            })}
-          </div>          
-        </section>
     </div>
   );
 }
@@ -415,8 +394,7 @@ const MarkButton = ({ format, icon }) => {
         toggleMark(editor, format)
       }}
     >
-      <i className="fas fa-bold"></i>
-      {/* {icon} */}
+      {icon}
     </button>
   )
 }
