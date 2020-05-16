@@ -101,21 +101,14 @@ export const SyncingEditor = (props) => {
     socket.on(`new-remote-operations-${props.groupId}`, ({editorId, ops, value}) => {
       if (socket.id !== editorId) {
         console.log('Receiving operation');
-        // ops.forEach(op => 
-        //   console.log(op)
-        // );
         try {
-          console.log('Trying to apply operation - Remote');
-          ops.forEach(op => editor.apply(op));
-        } 
+          console.log('Applying operation - Remote');
+          Editor.withoutNormalizing(editor, () => {
+            ops.forEach(op => editor.apply(op));
+          })        } 
         catch (err) {
-          console.log('Tying to apply operation - Remote - Hardcoded'); //TODO Review
-          try { 
-            setValue(value);
-          }
-          catch (err) {
-            console.log(`Error. Too many operations at the same time! ${err}`)
-          }
+          console.log('Hardcoding operation - Remote'); //TODO Review
+          setValue(value);
         }
       }
     });
@@ -134,16 +127,13 @@ export const SyncingEditor = (props) => {
             value={value}
             onChange={value => {
               console.log('Applied operation - Locally')
-              try { 
-                setValue(value);
-              }
-              catch (err) {
-                console.log(`Error. Too many operations at the same time! ${err}`)
-              }
+              console.log(editor.operations)
+              setValue(value);
+
               let isRemoteOperation = [...editor.operations].map(op => op.source).join('').length !== 0;
               if (!isRemoteOperation) {
-                // console.log(`Before transformation `);
-                // console.log(editor.operations);
+                console.log(`Before transformation `);
+                console.log(editor.operations);
   
                 // Create object to emit
                 const ops = editor.operations
@@ -151,7 +141,7 @@ export const SyncingEditor = (props) => {
                     if (o) {
                       return (
                         o.type !== "set_selection" &&
-                        o.type !== "split_node" &&
+                        // o.type !== "split_node" &&
                         !o.source
                       );
                     }
@@ -159,8 +149,8 @@ export const SyncingEditor = (props) => {
                   })
                   .map((o) => ({ ...o, source: socket.id }));  
       
-                // console.log(`After transformation `);
-                // console.log(ops);
+                console.log(`After transformation `);
+                console.log(ops);
   
                 // Emit object
                 if (ops.length && !isRemoteOperation) {
